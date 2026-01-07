@@ -36,6 +36,9 @@ class PrintFinishedWhenPlugin(
             "js": ["js/print_finished_when.js"]
         }
 
+    def is_template_autoescape(self):
+        return True
+
     ## --- Events ---
 
     def on_event(self, event, payload):
