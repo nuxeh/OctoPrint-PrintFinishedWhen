@@ -1,5 +1,3 @@
-# octoprint_print_finished_when/__init__.py
-
 import time
 from octoprint.plugin import (
     SettingsPlugin,
@@ -51,6 +49,12 @@ class PrintFinishedWhenPlugin(
         if event == Events.PRINT_DONE:
             self._on_print_done()
 
+        elif event == Events.PRINT_PAUSED:
+            self._on_print_paused()
+
+        elif event == Events.PRINT_RESUMED:
+            self._on_print_resumed()
+
         elif event in (
             Events.PRINT_STARTED,
             Events.PRINT_CANCELLED,
@@ -58,13 +62,37 @@ class PrintFinishedWhenPlugin(
         ):
             self._stop_timer()
 
+    def _on_print_paused(self):
+        if self._paused_at is None:
+            self._paused_at = time.time()
+            self._logger.debug("Print paused")
+
+    def _on_print_resumed(self):
+        if self._paused_at is not None:
+            paused_for = time.time() - self._paused_at
+            self._paused_duration += paused_for
+            self._paused_at = None
+            self._logger.debug(
+                f"Print resumed, paused for {int(paused_for)}s"
+            )
+
     def _on_print_done(self):
         if not self._settings.get_boolean(["enabled"]):
             return
 
         self._print_finished_at = time.time()
+        self._paused_at = None
+        self._paused_duration = 0
         self._messages_active = False
-        self._start_timer()
+
+        self._stop_timer()
+
+        self._timer = RepeatedTimer(
+            60,
+            self._send_message,
+            run_first=False
+        )
+        self._timer.start()
 
     ## --- Timer ---
 
@@ -90,42 +118,41 @@ class PrintFinishedWhenPlugin(
 
     ## --- Messaging ---
 
-def _send_message(self):
-    if not self._settings.get_boolean(["enabled"]):
-        self._stop_timer()
-        return
+    def _send_message(self):
+        if not self._printer or self._printer.is_printing():
+            self._stop_timer()
+            return
 
-    if self._printer.is_printing():
-        self._stop_timer()
-        return
+        if not self._print_finished_at:
+            return
 
-    if not self._print_finished_at:
-        return
+        now = time.time()
 
-    elapsed_minutes = int((time.time() - self._print_finished_at) / 60)
-    start_delay = self._settings.get_int(["start_delay_minutes"])
+        effective_elapsed = now - self._print_finished_at - self._paused_duration
 
-    if elapsed_minutes < start_delay:
-        return
+        elapsed_minutes = int(effective_elapsed / 60)
+        start_delay = self._settings.get_int(["start_delay_minutes"])
 
-    if not self._messages_active:
-        self._messages_active = True
-        self._logger.info(
-            f"Print Finished When started after {start_delay} minutes"
-        )
-        return
+        if elapsed_minutes < start_delay:
+            return
 
-    template = self._settings.get(["message_template"])
-    message = template.format(minutes=elapsed_minutes)
+        if not self._messages_active:
+            self._messages_active = True
+            self._logger.info(
+                f"Print Finished When started after {start_delay} minutes"
+            )
 
-    if self._settings.get_boolean(["send_lcd"]):
-        self._printer.commands([f"M117 {message}"])
+        template = self._settings.get(["message_template"])
+        message = template.format(minutes=elapsed_minutes)
 
-    if self._settings.get_boolean(["send_popup"]):
-        self._plugin_manager.send_plugin_message(
-            self._identifier,
-            dict(text=message)
-        )
+        if self._settings.get_boolean(["send_lcd"]):
+            self._printer.commands([f"M117 {message}"])
+
+        if self._settings.get_boolean(["send_popup"]):
+            self._plugin_manager.send_plugin_message(
+                self._identifier,
+                dict(text=message)
+            )
 
     ## --- API ---
 
