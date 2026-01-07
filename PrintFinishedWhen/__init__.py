@@ -8,12 +8,13 @@ from octoprint.plugin import (
 )
 from octoprint.events import Events
 from octoprint.util import RepeatedTimer
-
+from octoprint.plugin import SoftwareUpdatePlugin
 
 class PrintFinishedWhenPlugin(
     SettingsPlugin,
     EventHandlerPlugin,
-    TemplatePlugin
+    TemplatePlugin,
+    SoftwareUpdatePlugin
 ):
     def __init__(self):
         self._print_finished_at = None
@@ -119,6 +120,19 @@ class PrintFinishedWhenPlugin(
         return [
             dict(type="settings", custom_bindings=True)
         ]
+
+    def get_update_information(self):
+        return dict(
+            print_finished_when=dict(
+                displayName="Print Finished When",
+                displayVersion=self._plugin_version,
+                type="github_release",
+                user="nuxeh",
+                repo="OctoPrint-PrintFinishedWhen",
+                current=self._plugin_version,
+                pip="https://github.com/yourname/OctoPrint-PrintFinishedWhen/archive/{target_version}.zip"
+            )
+        )
 
 __plugin_name__ = "Print Finished When"
 __plugin_author__ = "Ed Cragg"
