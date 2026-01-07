@@ -10,12 +10,14 @@
 <div class="control-group">
     <label>Interval (minutes)</label>
     <input type="number" min="1" class="input-small"
+           placeholder="1"
            data-bind="value: settings.plugins.print_finished_when.interval_minutes">
 </div>
 
 <div class="control-group">
     <label>Start messages after (minutes)</label>
     <input type="number" min="0" class="input-small"
+           placeholder="5"
            data-bind="value: settings.plugins.print_finished_when.start_delay_minutes">
     <p class="help-block">
         Messages will begin this many minutes after the print finishes.
@@ -25,6 +27,7 @@
 <div class="control-group">
     <label>Message template</label>
     <input type="text" class="input-xlarge"
+           placeholder="Print finished {minutes} minute(s) ago"
            data-bind="value: settings.plugins.print_finished_when.message_template">
     <p class="help-block">Use <code>{minutes}</code> as a placeholder.</p>
 </div>
