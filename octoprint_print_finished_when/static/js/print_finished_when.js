@@ -19,6 +19,7 @@ $(function () {
     }
 
     self.testNotification = function () {
+        console.log("Test notification button clicked");
         OctoPrint.simpleApiCommand(
             "print_finished_when",
             "test_notification"

@@ -4,7 +4,8 @@ import time
 from octoprint.plugin import (
     SettingsPlugin,
     EventHandlerPlugin,
-    TemplatePlugin
+    TemplatePlugin,
+    SimpleApiPlugin
 )
 from octoprint.events import Events
 from octoprint.util import RepeatedTimer
@@ -15,6 +16,7 @@ class PrintFinishedWhenPlugin(
     SettingsPlugin,
     EventHandlerPlugin,
     TemplatePlugin,
+    SimpleApiPlugin,
 ):
     def __init__(self):
         self._print_finished_at = None
