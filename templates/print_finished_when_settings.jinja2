@@ -1,7 +1,7 @@
 <div class="control-group">
     <label class="checkbox">
         <input type="checkbox" data-bind="checked: settings.plugins.print_finished_when.enabled">
-        Enable reminder
+        Enable
     </label>
 </div>
 
@@ -9,6 +9,15 @@
     <label>Interval (minutes)</label>
     <input type="number" min="1" class="input-small"
            data-bind="value: settings.plugins.print_finished_when.interval_minutes">
+</div>
+
+<div class="control-group">
+    <label>Start messagess after (minutes)</label>
+    <input type="number" min="0" class="input-small"
+           data-bind="value: settings.plugins.print_finished_when.start_delay_minutes">
+    <p class="help-block">
+        Messagess will begin this many minutes after the print finishes.
+    </p>
 </div>
 
 <div class="control-group">
