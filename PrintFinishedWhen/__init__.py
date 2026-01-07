@@ -10,7 +10,7 @@ from octoprint.events import Events
 from octoprint.util import RepeatedTimer
 
 
-class IdleFinishedReminderPlugin(
+class PrintFinishedWhenPlugin(
     SettingsPlugin,
     EventHandlerPlugin,
     TemplatePlugin
@@ -107,5 +107,5 @@ __plugin_pythoncompat__ = ">=3.7,<4"
 
 def __plugin_load__():
     global __plugin_implementation__
-    __plugin_implementation__ = IdleFinishedReminderPlugin()
+    __plugin_implementation__ = PrintFinishedWhenPlugin()
 

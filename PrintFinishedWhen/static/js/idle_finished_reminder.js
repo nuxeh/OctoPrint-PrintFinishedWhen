@@ -1,5 +1,5 @@
 $(function () {
-    function IdleFinishedReminderViewModel(parameters) {
+    function PrintFinishedWhenViewModel(parameters) {
         var self = this;
 
         self.onDataUpdaterPluginMessage = function (plugin, data) {
@@ -17,7 +17,7 @@ $(function () {
     }
 
     OCTOPRINT_VIEWMODELS.push({
-        construct: IdleFinishedReminderViewModel,
+        construct: PrintFinishedWhenViewModel,
         dependencies: [],
         elements: []
     });
