@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="OctoPrint-PrintFinishedWhen",
-    version="0.1.9",
+    version="0.1.10",
     description="Sends periodic messages showing how long ago a print finished",
     long_description="A lightweight OctoPrint plugin that periodically "
                      "notifies you how long ago a print finished, with LCD M117 support.",
