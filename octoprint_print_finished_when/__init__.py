@@ -21,6 +21,8 @@ class PrintFinishedWhenPlugin(
     def __init__(self):
         self._print_finished_at = None
         self._messages_active = False
+        self._paused_at = None
+        self._paused_duration = 0
         self._timer = None
 
     ## --- Settings ---
@@ -87,8 +89,10 @@ class PrintFinishedWhenPlugin(
 
         self._stop_timer()
 
+        interval = self._settings.get_int(["interval_minutes"]) * 60
+
         self._timer = RepeatedTimer(
-            60,
+            interval,
             self._send_message,
             run_first=False
         )
@@ -163,7 +167,10 @@ class PrintFinishedWhenPlugin(
 
     def on_api_command(self, command, data):
         if command == "test_notification":
+            if not admin_permission.can():
+                return jsonify(error="Insufficient permissions"), 403
             self._send_test_message()
+            return jsonify(success=True)
 
     def _send_test_message(self):
         message = "Test: Print Finished When message"
