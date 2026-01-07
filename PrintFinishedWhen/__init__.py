@@ -89,13 +89,14 @@ class PrintFinishedWhenPlugin(
 
         start_delay = self._settings.get_int(["start_delay_minutes"])
 
-        # Not time yet → do nothing
+        # Not time yet, do nothing
         if elapsed_minutes < start_delay:
             return
 
-        # Activate reminders once
+        # Activate messages
         if not self._messages_active:
             self._messages_active = True
+            self._send_message()
             self._logger.info(
                 f"Print Finished When started after {start_delay} minutes"
             )
@@ -118,7 +119,6 @@ class PrintFinishedWhenPlugin(
         return [
             dict(type="settings", custom_bindings=True)
         ]
-
 
 __plugin_name__ = "Print Finished When"
 __plugin_pythoncompat__ = ">=3.7,<4"
