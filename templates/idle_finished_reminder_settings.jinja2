@@ -1,0 +1,36 @@
+<div class="control-group">
+    <label class="checkbox">
+        <input type="checkbox" data-bind="checked: settings.plugins.idle_finished_reminder.enabled">
+        Enable reminder
+    </label>
+</div>
+
+<div class="control-group">
+    <label>Interval (minutes)</label>
+    <input type="number" min="1" class="input-small"
+           data-bind="value: settings.plugins.idle_finished_reminder.interval_minutes">
+</div>
+
+<div class="control-group">
+    <label>Message template</label>
+    <input type="text" class="input-xlarge"
+           data-bind="value: settings.plugins.idle_finished_reminder.message_template">
+    <p class="help-block">Use <code>{minutes}</code> as a placeholder.</p>
+</div>
+
+<div class="control-group">
+    <label class="checkbox">
+        <input type="checkbox"
+               data-bind="checked: settings.plugins.idle_finished_reminder.send_lcd">
+        Send message to printer LCD (M117)
+    </label>
+</div>
+
+<div class="control-group">
+    <label class="checkbox">
+        <input type="checkbox"
+               data-bind="checked: settings.plugins.idle_finished_reminder.send_popup">
+        Show popup notification in OctoPrint
+    </label>
+</div>
+

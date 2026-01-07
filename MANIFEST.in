@@ -1,0 +1,2 @@
+recursive-include octoprint_idle_finished_reminder/templates *
+recursive-include octoprint_idle_finished_reminder/static *
