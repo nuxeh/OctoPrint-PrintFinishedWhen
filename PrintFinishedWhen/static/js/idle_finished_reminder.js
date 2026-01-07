@@ -3,7 +3,7 @@ $(function () {
         var self = this;
 
         self.onDataUpdaterPluginMessage = function (plugin, data) {
-            if (plugin !== "idle_finished_reminder") return;
+            if (plugin !== "print_finished_when") return;
 
             if (data.text) {
                 new PNotify({

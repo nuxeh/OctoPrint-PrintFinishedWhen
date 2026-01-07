@@ -1,4 +1,4 @@
-# octoprint_idle_finished_reminder/__init__.py
+# octoprint_print_finished_when/__init__.py
 
 import time
 from octoprint.plugin import (

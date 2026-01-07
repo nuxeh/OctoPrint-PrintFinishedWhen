@@ -6,11 +6,11 @@ setup(
     description="Repeats a reminder/messages to LCD showing how long ago a print finished",
     author="Ed Cragg",
     license="AGPLv3",
-    packages=["octoprint_idle_finished_reminder"],
+    packages=["octoprint_print_finished_when"],
     include_package_data=True,
     entry_points={
         "octoprint.plugin": [
-            "idle_finished_reminder = octoprint_idle_finished_reminder"
+            "print_finished_when = octoprint_print_finished_when"
         ]
     },
 )
