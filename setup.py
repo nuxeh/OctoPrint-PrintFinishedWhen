@@ -3,9 +3,12 @@ from setuptools import setup
 setup(
     name="OctoPrint-PrintFinishedWhen",
     version="0.1.0",
-    description="Repeats a reminder/messages to LCD showing how long ago a print finished",
+    description="Sends periodic messages showing how long ago a print finished",
+    long_description="A lightweight OctoPrint plugin that periodically "
+                     "notifies you how long ago a print finished, with LCD M117 support.",
     author="Ed Cragg",
-    license="AGPLv3",
+    url="https://github.com/nuxeh/OctoPrint-PrintFinishedWhen",
+    license="ISC",
     packages=["octoprint_print_finished_when"],
     include_package_data=True,
     entry_points={
@@ -13,5 +16,7 @@ setup(
             "print_finished_when = octoprint_print_finished_when"
         ]
     },
+    include_package_data=True,
+    zip_safe=False,
 )
 

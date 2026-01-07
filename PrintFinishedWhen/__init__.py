@@ -121,7 +121,14 @@ class PrintFinishedWhenPlugin(
         ]
 
 __plugin_name__ = "Print Finished When"
+__plugin_author__ = "Ed Cragg"
+__plugin_description__ = (
+    "Sends periodic messages showing how long ago a print finished"
+)
+__plugin_version__ = "0.1.0"
+__plugin_license__ = "ISC"
 __plugin_pythoncompat__ = ">=3.7,<4"
+__plugin_icon__ = "clock-o"
 
 def __plugin_load__():
     global __plugin_implementation__
