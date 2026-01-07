@@ -8,6 +8,8 @@ from octoprint.plugin import (
 )
 from octoprint.events import Events
 from octoprint.util import RepeatedTimer
+from octoprint.server import admin_permission
+from flask import jsonify
 
 class PrintFinishedWhenPlugin(
     SettingsPlugin,
@@ -121,11 +123,34 @@ def _send_message(self):
             dict(text=message)
         )
 
+    ## --- API ---
+
+    def get_api_commands(self):
+        return {
+            "test_notification": []
+        }
+
+    def on_api_command(self, command, data):
+        if command == "test_notification":
+            self._send_test_message()
+
+    def _send_test_message(self):
+        message = "Test: Print Finished When message"
+
+        if self._settings.get_boolean(["send_lcd"]):
+            self._printer.commands([f"M117 {message}"])
+
+        if self._settings.get_boolean(["send_popup"]):
+            self._plugin_manager.send_plugin_message(
+                self._identifier,
+                dict(text=message)
+            )
+
     ## --- UI ---
 
     def get_template_configs(self):
         return [
-            dict(type="settings", autoescape=True)
+            dict(type="settings", autoescape=True, custom_bindings=True)
         ]
 
 __plugin_name__ = "Print Finished When"

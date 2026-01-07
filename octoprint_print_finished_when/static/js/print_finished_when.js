@@ -18,6 +18,13 @@ $(function () {
         };
     }
 
+    self.testNotification = function () {
+        OctoPrint.simpleApiCommand(
+            "print_finished_when",
+            "test_notification"
+        );
+    };
+
     OCTOPRINT_VIEWMODELS.push({
         construct: PrintFinishedWhenViewModel,
         dependencies: ["settingsViewModel"],
