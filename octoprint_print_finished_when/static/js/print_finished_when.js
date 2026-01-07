@@ -2,6 +2,8 @@ $(function () {
     function PrintFinishedWhenViewModel(parameters) {
         var self = this;
 
+        self.settings = parameters[0];
+
         self.onDataUpdaterPluginMessage = function (plugin, data) {
             if (plugin !== "print_finished_when") return;
 
@@ -18,8 +20,8 @@ $(function () {
 
     OCTOPRINT_VIEWMODELS.push({
         construct: PrintFinishedWhenViewModel,
-        dependencies: [],
-        elements: []
+        dependencies: ["settingsViewModel"],
+        elements: ["#settings_plugin_print_finished_when"]
     });
 });
 
