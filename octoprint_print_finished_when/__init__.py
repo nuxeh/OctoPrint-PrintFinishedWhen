@@ -31,6 +31,11 @@ class PrintFinishedWhenPlugin(
             send_popup=False
         )
 
+    def get_assets(self):
+        return {
+            "js": ["js/print_finished_when.js"]
+        }
+
     ## --- Events ---
 
     def on_event(self, event, payload):
