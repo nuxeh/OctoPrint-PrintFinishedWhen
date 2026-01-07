@@ -102,7 +102,7 @@ class PrintFinishedWhenPlugin(
         ]
 
 
-__plugin_name__ = "Idle Finished Reminder"
+__plugin_name__ = "Print Finished When"
 __plugin_pythoncompat__ = ">=3.7,<4"
 
 def __plugin_load__():
