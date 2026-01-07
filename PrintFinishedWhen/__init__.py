@@ -17,6 +17,7 @@ class PrintFinishedWhenPlugin(
 ):
     def __init__(self):
         self._print_finished_at = None
+        self._messages_active = False
         self._timer = None
 
     ## --- Settings ---
@@ -25,6 +26,7 @@ class PrintFinishedWhenPlugin(
         return dict(
             enabled=True,
             interval_minutes=1,
+            start_delay_minutes=5,
             message_template="Print finished {minutes} minute(s) ago",
             send_lcd=True,
             send_popup=False
@@ -48,6 +50,7 @@ class PrintFinishedWhenPlugin(
             return
 
         self._print_finished_at = time.time()
+        self._messages_active = False
         self._start_timer()
 
     ## --- Timer ---
@@ -70,6 +73,7 @@ class PrintFinishedWhenPlugin(
             self._timer.cancel()
             self._timer = None
         self._print_finished_at = None
+        self._messages_active = False
 
     ## --- Messaging ---
 
@@ -81,9 +85,23 @@ class PrintFinishedWhenPlugin(
         if not self._print_finished_at:
             return
 
-        minutes = int((time.time() - self._print_finished_at) / 60)
+        elapsed_minutes = int((time.time() - self._print_finished_at) / 60)
+
+        start_delay = self._settings.get_int(["start_delay_minutes"])
+
+        # Not time yet → do nothing
+        if elapsed_minutes < start_delay:
+            return
+
+        # Activate reminders once
+        if not self._messages_active:
+            self._messages_active = True
+            self._logger.info(
+                f"Print Finished When started after {start_delay} minutes"
+            )
+
         template = self._settings.get(["message_template"])
-        message = template.format(minutes=minutes)
+        message = template.format(minutes=elapsed_minutes)
 
         if self._settings.get_boolean(["send_lcd"]):
             self._printer.commands([f"M117 {message}"])
