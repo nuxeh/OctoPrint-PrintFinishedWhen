@@ -16,7 +16,6 @@ setup(
             "print_finished_when = octoprint_print_finished_when"
         ]
     },
-    include_package_data=True,
     zip_safe=False,
 )
 
