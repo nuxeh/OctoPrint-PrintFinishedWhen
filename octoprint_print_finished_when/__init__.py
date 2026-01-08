@@ -64,7 +64,6 @@ class PrintFinishedWhenPlugin(
     TemplatePlugin,
     SimpleApiPlugin,
     AssetPlugin,
-    SettingsPlugin,
 ):
     def __init__(self):
         self._print_finished_at = None
@@ -127,6 +126,9 @@ class PrintFinishedWhenPlugin(
         self.log.kv("Send popup", self._settings.get_boolean(['send_popup']))
 
     def on_settings_save(self, data):
+        if self.log:
+            self.log.info("on_settings_save called")
+
         """Called when settings are saved"""
         SettingsPlugin.on_settings_save(self, data)
 
