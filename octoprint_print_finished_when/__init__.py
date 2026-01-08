@@ -31,19 +31,19 @@ class PluginLogger:
         self._logger.info(f"*** {message} ***")
 
     def info(self, message):
-        self._logger.info(f" {message}")
+        self._logger.info(f"{message}")
 
     def debug(self, message):
-        self._logger.debug(f" {message}")
+        self._logger.debug(f"{message}")
 
     def warning(self, message):
-        self._logger.warning(f" {message}")
+        self._logger.warning(f"{message}")
 
     def error(self, message):
-        self._logger.error(f" {message}")
+        self._logger.error(f"{message}")
 
     def kv(self, key, value):
-        self._logger.info(f" {key}: {value}")
+        self._logger.info(f"[{key}] {value}")
 
 
 class PrintFinishedWhenPlugin(
@@ -75,7 +75,7 @@ class PrintFinishedWhenPlugin(
         )
 
         formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(message)s",
+            "%(asctime)s - %(levelname)s %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"
         )
         file_handler.setFormatter(formatter)
