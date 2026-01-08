@@ -350,7 +350,7 @@ class PrintFinishedWhenPlugin(
 
     def get_template_configs(self):
         return [
-            dict(type="settings", autoescape=True, custom_bindings=True)
+            dict(type="settings", autoescape=True)
         ]
 
 __plugin_name__ = "Print Finished When"
