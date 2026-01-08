@@ -1,57 +1,36 @@
 <div class="control-group">
     <label class="checkbox">
-        <input type="checkbox" data-bind="checked: settings.plugins.print_finished_when.enabled">
+        <input type="checkbox"
+               data-bind="checked: settings.plugins.print_finished_when.enabled">
         Enable
     </label>
 </div>
 
 <div class="control-group">
-    <label>Interval (minutes)</label>
+    <label>Message interval (seconds)</label>
     <input type="number" min="1" class="input-small"
-           placeholder="1"
-           data-bind="value: settings.plugins.print_finished_when.interval_minutes">
+           data-bind="value: settings.plugins.print_finished_when.interval_seconds">
 </div>
 
 <div class="control-group">
-    <label>Start messages after (minutes)</label>
+    <label>Start delay after print finishes (seconds)</label>
     <input type="number" min="0" class="input-small"
-           placeholder="5"
-           data-bind="value: settings.plugins.print_finished_when.start_delay_minutes">
-    <p class="help-block">
-        Messages will begin this many minutes after the print finishes.
-    </p>
+           data-bind="value: settings.plugins.print_finished_when.start_delay_seconds">
 </div>
 
 <div class="control-group">
-    <label>Message template</label>
+    <label>Message format (under 60 minutes)</label>
     <input type="text" class="input-xlarge"
-           placeholder="Print finished {minutes} minute(s) ago"
-           data-bind="value: settings.plugins.print_finished_when.message_template">
-    <p class="help-block">Use <code>{minutes}</code> as a placeholder. Examples:<br>
-        <code>Print finished {minutes} minute(s) ago.</code><br>
-        <code>Print flurbed ere {minutes} minute(s).</code>
+           data-bind="value: settings.plugins.print_finished_when.message_template_under_60">
+    <p class="help-block">
+        Available placeholders:
+        <code>{seconds}</code>, <code>{minutes}</code>, <code>{hours}</code>
     </p>
 </div>
 
 <div class="control-group">
-    <label class="checkbox">
-        <input type="checkbox"
-               data-bind="checked: settings.plugins.print_finished_when.send_lcd">
-        Send message to printer LCD (M117)
-    </label>
+    <label>Message format (60 minutes or more)</label>
+    <input type="text" class="input-xlarge"
+           data-bind="value: settings.plugins.print_finished_when.message_template_over_60">
 </div>
 
-<div class="control-group">
-    <label class="checkbox">
-        <input type="checkbox"
-               data-bind="checked: settings.plugins.print_finished_when.send_popup">
-        Show popup notification in OctoPrint
-    </label>
-</div>
-
-<div class="control-group">
-    <button class="btn btn-primary"
-            data-bind="click: testNotification">
-        Send test notification
-    </button>
-</div>
