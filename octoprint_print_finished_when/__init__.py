@@ -32,7 +32,7 @@ class PluginLogger:
 
     def event(self, message):
         """Log an event"""
-        self._logger.info(f">> {message}")
+        self._logger.info(f">> {message} <<")
 
     def highlight(self, message):
         """Log something important"""
@@ -141,15 +141,15 @@ class PrintFinishedWhenPlugin(
         self.log.kv("Payload", payload)
 
         if event == Events.PRINT_DONE:
-            self.log.event("PRINT_DONE detected")
+            self.log.event("PrintDone detected")
             self._on_print_done()
 
         elif event == Events.PRINT_PAUSED:
-            self.log.event("PRINT_PAUSED detected")
+            self.log.event("PrintPaused detected")
             self._on_print_paused()
 
         elif event == Events.PRINT_RESUMED:
-            self.log.event("PRINT_RESUMED detected")
+            self.log.event("PrintResumed detected")
             self._on_print_resumed()
 
         elif event in (
@@ -278,9 +278,9 @@ class PrintFinishedWhenPlugin(
             self.log.info(f"Sending: {gcode_cmd}")
             try:
                 self._printer.commands([gcode_cmd])
-                self.log.info("✓ LCD command sent")
+                self.log.info("LCD command sent")
             except Exception as e:
-                self.log.error(f"✗ LCD error: {e}")
+                self.log.error(f"LCD error: {e}")
 
         if send_popup:
             self.log.info("Sending popup")
@@ -289,9 +289,9 @@ class PrintFinishedWhenPlugin(
                     self._identifier,
                     dict(text=message)
                 )
-                self.log.info("✓ Popup sent")
+                self.log.info("Popup sent")
             except Exception as e:
-                self.log.error(f"✗ Popup error: {e}")
+                self.log.error(f"Popup error: {e}")
 
     ## --- API ---
 
@@ -331,9 +331,9 @@ class PrintFinishedWhenPlugin(
             self.log.info(f"Sending: {gcode_cmd}")
             try:
                 self._printer.commands([gcode_cmd])
-                self.log.info("✓ Test LCD sent")
+                self.log.info("Test LCD sent")
             except Exception as e:
-                self.log.error(f"✗ Test LCD error: {e}")
+                self.log.error(f"Test LCD error: {e}")
 
         if send_popup:
             self.log.info("Sending test popup")
@@ -342,9 +342,9 @@ class PrintFinishedWhenPlugin(
                     self._identifier,
                     dict(text=message)
                 )
-                self.log.info("✓ Test popup sent")
+                self.log.info("Test popup sent")
             except Exception as e:
-                self.log.error(f"✗ Test popup error: {e}")
+                self.log.error(f"Test popup error: {e}")
 
     ## --- UI ---
 
