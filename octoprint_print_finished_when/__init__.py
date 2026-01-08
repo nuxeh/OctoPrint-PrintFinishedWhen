@@ -23,7 +23,6 @@ class PluginLogger:
 
     def section(self, title):
         """Log a major section header"""
-        self._logger.info("")
         self._logger.info(f"=== {title} ===")
 
     def subsection(self, title):
