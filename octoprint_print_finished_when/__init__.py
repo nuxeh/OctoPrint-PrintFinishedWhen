@@ -13,8 +13,6 @@ from octoprint.util import RepeatedTimer
 
 
 class PluginLogger:
-    """Wrapper for cleaner logging throughout the plugin"""
-
     def __init__(self, logger):
         self._logger = logger
 
@@ -105,75 +103,71 @@ class PrintFinishedWhenPlugin(
             message_template_over_60m="Print finished {hours} hour(s) ago",
         )
 
-    def print_settings(self):
-        self.log.kv("Enabled", self._settings.get_boolean(["enabled"]))
-        self.log.kv(
-            "Interval",
-            f"{self._settings.get_int(['interval_seconds'])} seconds"
-        )
-        self.log.kv(
-            "Start delay",
-            f"{self._settings.get_int(['start_delay_seconds'])} seconds"
-        )
-        self.log.kv(
-            "Template (<60m)",
-            self._settings.get(["message_template_under_60m"])
-        )
-        self.log.kv(
-            "Template (>=60m)",
-            self._settings.get(["message_template_over_60m"])
-        )
-
     def on_settings_save(self, data):
         SettingsPlugin.on_settings_save(self, data)
 
-        if not self.log:
+        logger = self.log or self._base_logger
+        logger.info("=== Settings Saved ===")
+        logger.info(f"Raw data: {data}")
+
+        self._apply_settings()
+
+    def print_settings(self):
+        logger = self.log or self._base_logger
+
+        logger.info(f" Enabled: {self._settings.get_boolean(['enabled'])}")
+        logger.info(f" Interval: {self._settings.get_int(['interval_seconds'])}s")
+        logger.info(f" Start delay: {self._settings.get_int(['start_delay_seconds'])}s")
+        logger.info(f" Template <60s: {self._settings.get(['message_template_under_60s'])}")
+        logger.info(f" Template <60m: {self._settings.get(['message_template_under_60m'])}")
+        logger.info(f" Template >=60m: {self._settings.get(['message_template_over_60m'])}")
+
+    # ---------------------------------------------------------------------
+    # Settings Application (LIVE)
+    # ---------------------------------------------------------------------
+
+    def _apply_settings(self):
+        """
+        Apply settings to the running plugin.
+        Safe to call at any lifecycle stage.
+        """
+        if not self._settings.get_boolean(["enabled"]):
+            self._stop_timer()
             return
 
-        self.log.section("Settings Saved")
-        self.print_settings()
-
         if self._timer and self._print_finished_at:
-            self.log.info("Restarting timer with new settings")
-            self._timer.cancel()
-
             interval = self._settings.get_int(["interval_seconds"])
-            self.log.kv("New interval", f"{interval}s")
-
+            self._timer.cancel()
             self._timer = RepeatedTimer(interval, self._send_message, run_first=False)
             self._timer.start()
 
-    # -------------------------------------------------------------------------
+            (self.log or self._base_logger).info(
+                f"Timer restarted with interval {interval}s"
+            )
+
+    # ---------------------------------------------------------------------
     # Events
-    # -------------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def on_event(self, event, payload):
-        if not self.log:
-            return
-
-        self.log.section(f"Event: {event}")
+        logger = self.log or self._base_logger
+        logger.info(f"=== Event: {event} ===")
 
         if event == Events.PRINT_DONE:
-            self.log.event("Print finished")
             self._on_print_done()
-
         elif event == Events.PRINT_PAUSED:
             self._on_print_paused()
-
         elif event == Events.PRINT_RESUMED:
             self._on_print_resumed()
-
         elif event in (
             Events.PRINT_STARTED,
             Events.PRINT_CANCELLED,
             Events.PRINT_FAILED,
         ):
-            self.log.event("Resetting state")
             self._reset_state()
 
     def _on_print_done(self):
         if not self._settings.get_boolean(["enabled"]):
-            self.log.info("Plugin disabled, ignoring print completion")
             return
 
         self._print_finished_at = time.time()
@@ -183,36 +177,26 @@ class PrintFinishedWhenPlugin(
         self._stop_timer()
 
         interval = self._settings.get_int(["interval_seconds"])
-        self.log.kv("Timer interval", f"{interval}s")
-
         self._timer = RepeatedTimer(interval, self._send_message, run_first=False)
         self._timer.start()
 
-        self.log.highlight("Timer started")
+        (self.log or self._base_logger).info("Timer started")
 
     def _on_print_paused(self):
         if self._paused_at is None:
             self._paused_at = time.time()
-            self.log.info("Print paused")
-        else:
-            self.log.warning("Pause event received while already paused")
 
     def _on_print_resumed(self):
         if self._paused_at is not None:
-            paused_for = time.time() - self._paused_at
-            self._paused_duration += paused_for
+            self._paused_duration += time.time() - self._paused_at
             self._paused_at = None
-            self.log.info(f"Resumed after {int(paused_for)}s pause")
-        else:
-            self.log.warning("Resume event received while not paused")
 
-    # -------------------------------------------------------------------------
+    # ---------------------------------------------------------------------
     # Timer / State
-    # -------------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def _stop_timer(self):
         if self._timer:
-            self.log.info("Stopping timer")
             self._timer.cancel()
             self._timer = None
 
@@ -221,37 +205,26 @@ class PrintFinishedWhenPlugin(
         self._print_finished_at = None
         self._paused_at = None
         self._paused_duration = 0
-        self.log.info("State reset")
 
-    # -------------------------------------------------------------------------
+    # ---------------------------------------------------------------------
     # Messaging
-    # -------------------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     def _send_message(self):
-        self.log.section("Send Message")
+        logger = self.log or self._base_logger
 
-        if not self._printer:
-            self.log.error("Printer not available")
-            return
-
-        if self._printer.is_printing():
-            self.log.info("Printer active, stopping timer")
+        if not self._printer or self._printer.is_printing():
             self._stop_timer()
             return
 
         if not self._print_finished_at:
-            self.log.warning("No completion timestamp")
             return
 
-        now = time.time()
         elapsed_seconds = int(
-            now - self._print_finished_at - self._paused_duration
+            time.time() - self._print_finished_at - self._paused_duration
         )
 
-        start_delay = self._settings.get_int(["start_delay_seconds"])
-
-        if elapsed_seconds < start_delay:
-            self.log.info("Waiting for start delay")
+        if elapsed_seconds < self._settings.get_int(["start_delay_seconds"]):
             return
 
         # floored divisions
