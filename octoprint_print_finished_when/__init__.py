@@ -14,6 +14,7 @@ from octoprint.util import RepeatedTimer
 from octoprint.server import admin_permission
 from flask import jsonify
 
+
 class PluginLogger:
     """Wrapper for cleaner logging throughout the plugin"""
 
@@ -22,9 +23,8 @@ class PluginLogger:
 
     def section(self, title):
         """Log a major section header"""
-        self._logger.info("=" * 60)
+        self._logger.info("")
         self._logger.info(f"=== {title} ===")
-        self._logger.info("=" * 60)
 
     def subsection(self, title):
         """Log a subsection header"""
@@ -32,7 +32,7 @@ class PluginLogger:
 
     def event(self, message):
         """Log an event"""
-        self._logger.info(f">>> {message}")
+        self._logger.info(f">> {message}")
 
     def highlight(self, message):
         """Log something important"""
@@ -40,23 +40,23 @@ class PluginLogger:
 
     def info(self, message):
         """Standard info message"""
-        self._logger.info(message)
+        self._logger.info(f" {message}")
 
     def debug(self, message):
         """Debug message"""
-        self._logger.debug(message)
+        self._logger.debug(f" {message}")
 
     def warning(self, message):
         """Warning message"""
-        self._logger.warning(message)
+        self._logger.warning(f" {message}")
 
     def error(self, message):
         """Error message"""
-        self._logger.error(message)
+        self._logger.error(f" {message}")
 
     def kv(self, key, value):
         """Log a key-value pair"""
-        self._logger.info(f"{key}: {value}")
+        self._logger.info(f" {key}: {value}")
 
 
 class PrintFinishedWhenPlugin(
@@ -72,7 +72,7 @@ class PrintFinishedWhenPlugin(
         self._timer = None
         self._paused_at = None
         self._paused_duration = 0
-        self.log = None
+        self.log = None  # Will be initialized in initialize()
 
     def initialize(self):
         """Called after plugin is initialized"""
@@ -89,7 +89,7 @@ class PrintFinishedWhenPlugin(
         )
 
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            '%(asctime)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         file_handler.setFormatter(formatter)
@@ -157,8 +157,8 @@ class PrintFinishedWhenPlugin(
             Events.PRINT_CANCELLED,
             Events.PRINT_FAILED
         ):
-            self.log.event(f"{event} detected - stopping timer")
-            self._stop_timer()
+            self.log.event(f"{event} detected - resetting state")
+            self._reset_state()
 
     def _on_print_paused(self):
         if self._paused_at is None:
@@ -215,8 +215,18 @@ class PrintFinishedWhenPlugin(
         else:
             self.log.info("No timer to cancel")
 
-        self._print_finished_at = None
+        # Don't clear _print_finished_at here - it's needed for the next timer!
+        # Only clear when we truly want to reset everything
         self._messages_active = False
+
+    def _reset_state(self):
+        """Fully reset plugin state when starting/cancelling/failing a print"""
+        self.log.subsection("Reset State")
+        self._stop_timer()
+        self._print_finished_at = None
+        self._paused_at = None
+        self._paused_duration = 0
+        self.log.info("State reset complete")
 
     ## --- Messaging ---
 
