@@ -64,6 +64,7 @@ class PrintFinishedWhenPlugin(
     TemplatePlugin,
     SimpleApiPlugin,
     AssetPlugin,
+    SettingsPlugin,
 ):
     def __init__(self):
         self._print_finished_at = None
@@ -127,7 +128,7 @@ class PrintFinishedWhenPlugin(
 
     def on_settings_save(self, data):
         """Called when settings are saved"""
-        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+        SettingsPlugin.on_settings_save(self, data)
 
         if self.log:
             self.log.section("Settings Saved")
