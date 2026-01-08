@@ -104,11 +104,7 @@ class PrintFinishedWhenPlugin(
         # Log initialization
         self.log.section("Print Finished When Plugin Initialized")
         self.log.kv("Log file", logging_path)
-        self.log.kv("Enabled", self._settings.get_boolean(['enabled']))
-        self.log.kv("Interval", f"{self._settings.get_int(['interval_minutes'])} minutes")
-        self.log.kv("Start delay", f"{self._settings.get_int(['start_delay_minutes'])} minutes")
-        self.log.kv("Send LCD", self._settings.get_boolean(['send_lcd']))
-        self.log.kv("Send popup", self._settings.get_boolean(['send_popup']))
+        self.print_settings()
 
     ## --- Settings ---
 
@@ -121,6 +117,31 @@ class PrintFinishedWhenPlugin(
             send_lcd=True,
             send_popup=False
         )
+
+    def print_settings(self):
+        self.log.kv("Enabled", self._settings.get_boolean(['enabled']))
+        self.log.kv("Interval", f"{self._settings.get_int(['interval_minutes'])} minutes")
+        self.log.kv("Start delay", f"{self._settings.get_int(['start_delay_minutes'])} minutes")
+        self.log.kv("Send LCD", self._settings.get_boolean(['send_lcd']))
+        self.log.kv("Send popup", self._settings.get_boolean(['send_popup']))
+
+    def on_settings_save(self, data):
+        """Called when settings are saved"""
+        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+
+        if self.log:
+            self.log.section("Settings Saved")
+            self.print_settings()
+
+            # If there's an active timer, restart it with new interval
+            if self._timer and self._print_finished_at:
+                self.log.info("Restarting timer with new settings")
+                self._timer.cancel()
+                interval = self._settings.get_int(["interval_minutes"]) * 60
+                self.log.kv("New interval", f"{interval}s")
+                self._timer = RepeatedTimer(interval, self._send_message, run_first=False)
+                self._timer.start()
+                self.log.info("Timer restarted")
 
     def get_assets(self):
         return {
