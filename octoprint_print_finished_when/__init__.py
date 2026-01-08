@@ -100,8 +100,9 @@ class PrintFinishedWhenPlugin(
             enabled=True,
             interval_seconds=60,
             start_delay_seconds=300,
-            message_template_under_60="Print finished {minutes} minute(s) ago",
-            message_template_over_60="Print finished {hours} hour(s) ago",
+            message_template_under_60s="Print finished {seconds} second(s) ago",
+            message_template_under_60m="Print finished {minutes} minute(s) ago",
+            message_template_over_60m="Print finished {hours} hour(s) ago",
         )
 
     def print_settings(self):
@@ -116,11 +117,11 @@ class PrintFinishedWhenPlugin(
         )
         self.log.kv(
             "Template (<60m)",
-            self._settings.get(["message_template_under_60"])
+            self._settings.get(["message_template_under_60m"])
         )
         self.log.kv(
             "Template (>=60m)",
-            self._settings.get(["message_template_over_60"])
+            self._settings.get(["message_template_over_60m"])
         )
 
     def on_settings_save(self, data):
@@ -257,10 +258,18 @@ class PrintFinishedWhenPlugin(
         minutes = elapsed_seconds // 60
         hours = minutes // 60
 
-        if minutes < 60:
-            template = self._settings.get(["message_template_under_60"])
+        if elapsed_seconds < 60:
+            template = self._settings.get(["message_template_under_60s"])
+        elif minutes < 60:
+            template = self._settings.get(["message_template_under_60m"])
         else:
-            template = self._settings.get(["message_template_over_60"])
+            template = self._settings.get(["message_template_over_60m"])
+
+        self.log.kv("Template tier",
+            "under 60s" if elapsed_seconds < 60 else
+            "under 60m" if minutes < 60 else
+            "over 60m"
+        )
 
         try:
             message = template.format(

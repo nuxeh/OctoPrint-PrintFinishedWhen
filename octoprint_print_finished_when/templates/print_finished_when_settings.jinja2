@@ -19,9 +19,15 @@
 </div>
 
 <div class="control-group">
+    <label>Message format (under 60 seconds)</label>
+    <input type="text" class="input-xlarge"
+           data-bind="value: settings.plugins.print_finished_when.message_template_under_60s">
+</div>
+
+<div class="control-group">
     <label>Message format (under 60 minutes)</label>
     <input type="text" class="input-xlarge"
-           data-bind="value: settings.plugins.print_finished_when.message_template_under_60">
+           data-bind="value: settings.plugins.print_finished_when.message_template_under_60m">
     <p class="help-block">
         Available placeholders:
         <code>{seconds}</code>, <code>{minutes}</code>, <code>{hours}</code>
@@ -31,6 +37,6 @@
 <div class="control-group">
     <label>Message format (60 minutes or more)</label>
     <input type="text" class="input-xlarge"
-           data-bind="value: settings.plugins.print_finished_when.message_template_over_60">
+           data-bind="value: settings.plugins.print_finished_when.message_template_over_60m">
 </div>
 
