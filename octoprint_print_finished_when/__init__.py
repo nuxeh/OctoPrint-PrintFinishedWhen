@@ -379,7 +379,7 @@ __plugin_author__ = "Ed Cragg"
 __plugin_description__ = (
     "Sends periodic messages showing how long ago a print finished"
 )
-__plugin_version__ = "0.1.13"
+__plugin_version__ = "0.1.14"
 __plugin_license__ = "ISC"
 __plugin_pythoncompat__ = ">=3.7,<4"
 __plugin_icon__ = "clock-o"
