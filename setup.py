@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="OctoPrint-PrintFinishedWhen",
-    version="0.2.1",
+    version="0.2.2",
     description="Displays how long ago a print finished on the printer LCD",
     long_description=(
         "A minimal OctoPrint plugin that periodically sends M117 messages "
