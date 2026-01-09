@@ -149,7 +149,7 @@ class PrintFinishedWhenPlugin(
             self._stop_timer()
             self._timer = RepeatedTimer(interval, self._send_message, run_first=False)
             self._timer.start()
-            self.log.info(f"Timer restarted with interval {interval}s")
+            self.log.highlight(f"Timer restarted with interval {interval}s")
 
     def on_event(self, event, payload):
         self.log.section(f"Event: {event}")
@@ -158,15 +158,19 @@ class PrintFinishedWhenPlugin(
             self.log.event("Print finished")
             self._on_print_done()
         elif event == Events.PRINT_PAUSED:
+            self.log.event("Print paused")
             self._on_print_paused()
         elif event == Events.PRINT_RESUMED:
+            self.log.event("Print resumed")
             self._on_print_resumed()
-        elif event in (
-            Events.PRINT_STARTED,
-            Events.PRINT_CANCELLED,
-            Events.PRINT_FAILED,
-        ):
-            self.log.info("Resetting state")
+        elif event == Events.PRINT_STARTED:
+            self.log.event("Print started")
+            self._reset_state()
+        elif event == Events.PRINT_CANCELLED:
+            self.log.event("Print cancelled")
+            self._reset_state()
+        elif event == Events.PRINT_FAILED:
+            self.log.event("Print failed")
             self._reset_state()
 
     def _on_print_done(self):
@@ -190,7 +194,6 @@ class PrintFinishedWhenPlugin(
     def _on_print_paused(self):
         if self._paused_at is None:
             self._paused_at = time.time()
-            self.log.info("Print paused")
         else:
             self.log.warning("Pause event received while already paused")
 
@@ -205,7 +208,7 @@ class PrintFinishedWhenPlugin(
 
     def _stop_timer(self):
         if self._timer:
-            self.log.info("Stopping timer")
+            self.log.highlight("Stopping timer")
             self._timer.cancel()
             self._timer = None
 
