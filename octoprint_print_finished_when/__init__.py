@@ -94,6 +94,9 @@ class PrintFinishedWhenPlugin(
         self.log.kv("Log file", logging_path)
         self.print_settings()
 
+    def get_settings_version(self):
+        return 1
+
     def get_settings_defaults(self):
         return dict(
             enabled=True,
