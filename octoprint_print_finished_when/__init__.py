@@ -103,9 +103,9 @@ class PrintFinishedWhenPlugin(
             interval_seconds=60,
             start_delay_seconds=300,
             message_template_under_60s="Finished {seconds} s ago",
-            message_template_under_60m="Finished {minutes} m ago",
-            message_template_over_60m="Finished {hours} h ago",
-            message_template_over_24h="Finished {days} d ago",
+            message_template_under_60m="Finished {ms} ago",
+            message_template_over_60m="Finished {hm} ago",
+            message_template_over_24h="Finished {dhm} ago",
         )
 
     def on_settings_save(self, data):
@@ -137,6 +137,10 @@ class PrintFinishedWhenPlugin(
         self.log.kv(
             "Template (>=60m)",
             self._settings.get(["message_template_over_60m"])
+        )
+        self.log.kv(
+            "Template (>=24h)",
+            self._settings.get(["message_template_over_24h"])
         )
 
     def _apply_settings(self):
@@ -266,54 +270,66 @@ class PrintFinishedWhenPlugin(
             return
 
         now = time.time()
-        elapsed_seconds = int(
+        seconds = int(
             now - self._print_finished_at - self._paused_duration
         )
 
         start_delay = self._settings.get_int(["start_delay_seconds"])
-        if elapsed_seconds < start_delay:
+        if seconds < start_delay:
             self.log.info("Waiting to start")
             self.log.kv("delay", f"{start_delay}")
-            self.log.kv("elapsed", f"{elapsed_seconds}")
+            self.log.kv("elapsed", f"{seconds}")
             return
 
-        # floored divisions
-        minutes = elapsed_seconds // 60
-        hours = minutes // 60
-        days = hours // 24
+        # time calculations and template variable generation
+        minutes, mod_s = divmod(seconds, 60)
+        hours, mod_m = divmod(minutes, 60)
+        days, mod_h = divmod(hours, 24)
 
-        mod_m = minutes - (hours * 60)
-        mod_s = seconds - (hours * 60 * 60) # TODO
-        mod_h = hours # TODO
-        hms = f"{hours}h{mod_m}s{mod_s}"
-        dhms = f"{days}d{mod_h}h{mod_m}m{mod_s}s"
+        ms = f"{minutes}m{mod_s}"
+        hm = f"{hours}h{mod_m:02}m"
+        hms = f"{hours}h{mod_m:02}m{mod_s:02}s"
+        dhm = f"{days}d{mod_h:02}h{mod_m:02}m"
+        dhms = f"{days}d{mod_h:02}h{mod_m:02}m{mod_s:02}s"
 
+        template_data = {
+            "seconds": seconds,
+            "minutes": minutes,
+            "hours": hours,
+            "days": days,
+            "ms": ms,
+            "hm": hm,
+            "hms": hms,
+            "dhm": dhm,
+            "dhms": dhms,
+            "mod_h": mod_h,
+            "mod_m": mod_m,
+            "mod_s": mod_s
+        }
+
+        # log (verbose)
+        for key, value in template_data.items():
+            self.log.kv(key, value)
+
+        # get template and tier
         if elapsed_seconds < 60:
-            template = self._settings.get(["message_template_under_60s"])
+            tier = "under 60s"
+            t = "message_template_under_60s"
         elif minutes < 60:
-            template = self._settings.get(["message_template_under_60m"])
+            tier = "under 60m"
+            t = "message_template_under_60m"
+        elif hours < 24:
+            tier = "over 60m"
+            t = "message_template_over_60m"
         else:
-            template = self._settings.get(["message_template_over_60m"])
+            tier = "over 24h"
+            t = "message_template_over_24h"
 
-        self.log.kv("Template tier",
-            "under 60s" if elapsed_seconds < 60 else
-            "under 60m" if minutes < 60 else
-            "over 60m" if minutes >= 60 else
-            "over 24h" if hours > 24
-        )
+        self.log.kv("Template tier", tier)
+        template = self._settings.get([t])
 
         try:
-            message = template.format(
-                seconds=elapsed_seconds,
-                minutes=minutes,
-                hours=hours,
-                hms=hms,
-                dhms=dhms,
-                mod_d=mod_d,
-                mod_h=mod_h,
-                mod_m=mod_m,
-                mod_s=mod_s
-            )
+            message = template.format(**template_data)
         except Exception as e:
             self.log.error(f"Template formatting error: {e}")
             return
