@@ -40,21 +40,21 @@ def update_files(old_v, new_v):
     pattern = re.compile(
         rf'((?:version|__version__|__plugin_version__)\s*=\s*)(["\']){re.escape(old_v)}(["\'])'
     )
-    
+
     for file_path in TARGET_FILES:
         if os.path.exists(file_path):
             with open(file_path, "r") as f:
                 content = f.read()
-            
+
             new_content = pattern.sub(rf'\g<1>{new_v}\g<2>', content)
-            
+
             with open(file_path, "w") as f:
                 f.write(new_content)
             print(f"Updated {file_path}")
 
 def main():
     parser = argparse.ArgumentParser(description="Bump SemVer in project files.")
-    parser.add_argument("bump", choices=["major", "minor", "patch"], 
+    parser.add_argument("bump", choices=["major", "minor", "patch"],
                         nargs="?", default="patch", help="Part to increment (default: patch)")
     args = parser.parse_args()
 
