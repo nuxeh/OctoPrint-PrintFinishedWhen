@@ -13,9 +13,10 @@ from octoprint.util import RepeatedTimer
 
 class NullLogger:
     """ Null logger class used before the plugin is initialised
+
     Using this avoids checking that the logger has been initialised, each time
     the logger is called, as apparently plugins can be called before
-    initialisation.
+    initialisation. A class with zero effects, side or otherwise.
     """
     def section(self, *_, **__): pass
     def subsection(self, *_, **__): pass
@@ -153,10 +154,7 @@ class PrintFinishedWhenPlugin(
         )
 
     def _apply_settings(self):
-        """
-        Apply settings to the running plugin.
-        Safe to call at any lifecycle stage.
-        """
+        """ Apply settings to the running plugin. """
         if not self._settings.get_boolean(["enabled"]):
             self._stop_timer()
             return
