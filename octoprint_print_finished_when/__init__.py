@@ -341,6 +341,8 @@ class PrintFinishedWhenPlugin(
         self.log.kv("Template tier", tier)
         template = self._settings.get([t])
 
+        self.log.kv("Template", f"{template}")
+
         try:
             message = template.format(**template_data)
         except Exception as e:
