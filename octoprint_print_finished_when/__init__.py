@@ -252,6 +252,28 @@ class PrintFinishedWhenPlugin(
         self._paused_duration = 0
         self.log.info("State reset")
 
+    def _calculate_template_data(self, seconds_elapsed):
+        seconds = seconds_elapsed
+        minutes, mod_s = divmod(seconds, 60)
+        hours, mod_m = divmod(minutes, 60)
+        days, mod_h = divmod(hours, 24)
+
+        # Create strings
+        ms = f"{minutes}m{mod_s}s"
+        hm = f"{hours}h{mod_m:02}m"
+        hms = f"{hours}h{mod_m:02}m{mod_s:02}s"
+        dhm = f"{days}d{mod_h:02}h{mod_m:02}m"
+        dhms = f"{days}d{mod_h:02}h{mod_m:02}m{mod_s:02}s"
+
+        # get all variables defined in this function as a dict
+        data = locals().copy()
+
+        # prune those which are not wanted for substitutions
+        data.pop("self", None)
+        data.pop("seconds_elapsed", None)
+
+        return data
+
     def _send_message(self):
         self.log.section("Send Message")
 
@@ -281,49 +303,24 @@ class PrintFinishedWhenPlugin(
             self.log.kv("elapsed", f"{seconds}")
             return
 
-        # time calculations and template variable generation
-        minutes, mod_s = divmod(seconds, 60)
-        hours, mod_m = divmod(minutes, 60)
-        days, mod_h = divmod(hours, 24)
-
-        ms = f"{minutes}m{mod_s}"
-        hm = f"{hours}h{mod_m:02}m"
-        hms = f"{hours}h{mod_m:02}m{mod_s:02}s"
-        dhm = f"{days}d{mod_h:02}h{mod_m:02}m"
-        dhms = f"{days}d{mod_h:02}h{mod_m:02}m{mod_s:02}s"
-
-        template_data = {
-            "seconds": seconds,
-            "minutes": minutes,
-            "hours": hours,
-            "days": days,
-            "ms": ms,
-            "hm": hm,
-            "hms": hms,
-            "dhm": dhm,
-            "dhms": dhms,
-            "mod_h": mod_h,
-            "mod_m": mod_m,
-            "mod_s": mod_s
-        }
+        template_data = self._calculate_template_data(seconds)
 
         # log (verbose)
         for key, value in template_data.items():
             self.log.kv(key, value)
 
-        # get template and tier
-        if elapsed_seconds < 60:
-            tier = "under 60s"
-            t = "message_template_under_60s"
-        elif minutes < 60:
-            tier = "under 60m"
-            t = "message_template_under_60m"
-        elif hours < 24:
-            tier = "over 60m"
-            t = "message_template_over_60m"
+        s = template_data["seconds"]
+        m = template_data["minutes"]
+        h = template_data["hours"]
+
+        if s < 60:
+            tier,t = "under 60s", "message_template_under_60s"
+        elif m < 60:
+            tier,t = "under 60m", "message_template_under_60m"
+        elif h < 24:
+            tier,t = "over 60m", "message_template_over_60m"
         else:
-            tier = "over 24h"
-            t = "message_template_over_24h"
+            tier,t = "over 24h", "message_template_over_24h"
 
         self.log.kv("Template tier", tier)
         template = self._settings.get([t])
@@ -340,6 +337,12 @@ class PrintFinishedWhenPlugin(
             self._printer.commands([f"M117 {message}"])
         except Exception as e:
             self.log.error(f"M117 send failed: {e}")
+
+    def get_template_vars(self):
+        # get the template data directly, with sample calculation
+        # return the keys for display on settings page
+        sample_data = self._calculate_template_data(3600)
+        return dict(placeholders=sorted(sample_data.keys()))
 
     def get_template_configs(self):
         return [dict(type="settings", autoescape=True, custom_bindings=False)]
