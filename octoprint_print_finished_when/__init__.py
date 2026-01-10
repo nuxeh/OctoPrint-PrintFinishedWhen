@@ -280,6 +280,13 @@ class PrintFinishedWhenPlugin(
         # floored divisions
         minutes = elapsed_seconds // 60
         hours = minutes // 60
+        days = hours // 24
+
+        mod_m = minutes - (hours * 60)
+        mod_s = seconds - (hours * 60 * 60) # TODO
+        mod_h = hours # TODO
+        hms = f"{hours}h{mod_m}s{mod_s}"
+        dhms = f"{days}d{mod_h}h{mod_m}m{mod_s}s"
 
         if elapsed_seconds < 60:
             template = self._settings.get(["message_template_under_60s"])
@@ -291,7 +298,8 @@ class PrintFinishedWhenPlugin(
         self.log.kv("Template tier",
             "under 60s" if elapsed_seconds < 60 else
             "under 60m" if minutes < 60 else
-            "over 60m"
+            "over 60m" if minutes >= 60 else
+            "over 24h" if hours > 24
         )
 
         try:
@@ -299,6 +307,12 @@ class PrintFinishedWhenPlugin(
                 seconds=elapsed_seconds,
                 minutes=minutes,
                 hours=hours,
+                hms=hms,
+                dhms=dhms,
+                mod_d=mod_d,
+                mod_h=mod_h,
+                mod_m=mod_m,
+                mod_s=mod_s
             )
         except Exception as e:
             self.log.error(f"Template formatting error: {e}")
