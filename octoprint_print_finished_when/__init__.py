@@ -102,7 +102,7 @@ class PrintFinishedWhenPlugin(
             enabled=True,
             interval_seconds=60,
             start_delay_seconds=300,
-            message_template_under_60s="Finished {seconds} s ago",
+            message_template_under_60s="Finished {seconds}s ago",
             message_template_under_60m="Finished {ms} ago",
             message_template_over_60m="Finished {hm} ago",
             message_template_over_24h="Finished {dhm} ago",
@@ -129,6 +129,10 @@ class PrintFinishedWhenPlugin(
         self.log.kv(
             "Start delay",
             f"{self._settings.get_int(['start_delay_seconds'])} seconds"
+        )
+        self.log.kv(
+            "Template (<60s)",
+            self._settings.get(["message_template_under_60s"])
         )
         self.log.kv(
             "Template (<60m)",
