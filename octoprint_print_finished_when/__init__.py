@@ -159,7 +159,7 @@ class PrintFinishedWhenPlugin(
             Events.PRINT_STARTED,
             Events.PRINT_CANCELLED,
             Events.PRINT_FAILED,
-            Events.SETTINGS_UDATED,
+            Events.SETTINGS_UPDATED,
         }
 
         if event in trigger_events:
@@ -184,7 +184,7 @@ class PrintFinishedWhenPlugin(
         elif event == Events.PRINT_FAILED:
             self.log.event("Print failed")
 
-        elif event == Events.SETTINGS_UDATED:
+        elif event == Events.SETTINGS_UPDATED:
             self.log.event("Settings updated")
 
         reset_events = {
