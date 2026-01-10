@@ -28,10 +28,6 @@
     <label>Message format (under 60 minutes)</label>
     <input type="text" class="input-xlarge"
            data-bind="value: settings.plugins.print_finished_when.message_template_under_60m">
-    <p class="help-block">
-        Available placeholders:
-        <code>{seconds}</code>, <code>{minutes}</code>, <code>{hours}</code>
-    </p>
 </div>
 
 <div class="control-group">
@@ -40,3 +36,9 @@
            data-bind="value: settings.plugins.print_finished_when.message_template_over_60m">
 </div>
 
+<p class="help-block">
+    Available placeholders:
+    {% for placeholder in placeholders %}
+        <code>{{ '{' ~ placeholder ~ '}' }}</code>{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</p>
