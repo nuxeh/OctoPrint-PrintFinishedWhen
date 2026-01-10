@@ -152,7 +152,20 @@ class PrintFinishedWhenPlugin(
             self.log.highlight(f"Timer restarted with interval {interval}s")
 
     def on_event(self, event, payload):
-        self.log.section(f"Event: {event}")
+        trigger_events = {
+            Events.PRINT_DONE,
+            Events.PRINT_PAUSED,
+            Events.PRINT_RESUMED,
+            Events.PRINT_STARTED,
+            Events.PRINT_CANCELLED,
+            Events.PRINT_FAILED,
+            Events.SETTINGS_UDATED,
+        }
+
+        if event in trigger_events:
+            self.log.section(f"Event: {event}")
+        else:
+            self.log.debug(f"Event: {event}")
 
         if event == Events.PRINT_DONE:
             self.log.event("Print finished")
@@ -163,14 +176,24 @@ class PrintFinishedWhenPlugin(
         elif event == Events.PRINT_RESUMED:
             self.log.event("Print resumed")
             self._on_print_resumed()
+
         elif event == Events.PRINT_STARTED:
             self.log.event("Print started")
-            self._reset_state()
         elif event == Events.PRINT_CANCELLED:
             self.log.event("Print cancelled")
-            self._reset_state()
         elif event == Events.PRINT_FAILED:
             self.log.event("Print failed")
+
+        elif event == Events.SETTINGS_UDATED:
+            self.log.event("Settings updated")
+
+        reset_events = {
+            Events.PRINT_STARTED,
+            Events.PRINT_CANCELLED,
+            Events.PRINT_FAILED,
+        }
+
+        if event in reset_events:
             self._reset_state()
 
     def _on_print_done(self):
