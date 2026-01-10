@@ -314,7 +314,7 @@ class PrintFinishedWhenPlugin(
 __plugin_name__ = "Print Finished When"
 __plugin_author__ = "Ed Cragg"
 __plugin_description__ = "Periodically displays how long ago a print finished on the printer LCD"
-__plugin_version__ = "0.2.3"
+__plugin_version__ = "0.2.4"
 __plugin_license__ = "ISC"
 __plugin_pythoncompat__ = ">=3.7,<4"
 __plugin_icon__ = "clock-o"
