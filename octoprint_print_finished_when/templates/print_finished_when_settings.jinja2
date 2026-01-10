@@ -36,6 +36,12 @@
            data-bind="value: settings.plugins.print_finished_when.message_template_over_60m">
 </div>
 
+<div class="control-group">
+    <label>Message format (24 hours or more)</label>
+    <input type="text" class="input-xlarge"
+           data-bind="value: settings.plugins.print_finished_when.message_template_over_24h">
+</div>
+
 <p class="help-block">
     Available placeholders:
     {% for placeholder in placeholders %}
