@@ -50,7 +50,7 @@ def git_commit_prompt(old_v, new_v):
         subprocess.run(["git", "add"] + TARGET_FILES, check=True)
 
         # 2. Prepare the pre-filled message
-        commit_msg = f"chore: bump version {old_v} -> {new_v}\n\n- Updated {', '.join(TARGET_FILES)}"
+        commit_msg = f"Bump {old_v} -> {new_v}\n\n- Updated {', '.join(TARGET_FILES)}"
 
         # 3. Call git commit with -e to open the editor
         # The editor will show the message and allow the user to edit or abort (by clearing the message)
