@@ -78,7 +78,7 @@ class PrintFinishedWhenPlugin(
         )
 
         formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s %(message)s",
+            "%(asctime)s %(levelname)s %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"
         )
         file_handler.setFormatter(formatter)
@@ -90,9 +90,9 @@ class PrintFinishedWhenPlugin(
 
         self.log = PluginLogger(self._logger)
 
-        self.log.section("Print Finished When Plugin Initialized")
+        self.log.section("Print Finished When Plugin initialised")
         self.log.kv("Log file", logging_path)
-        self.print_settings()
+        self.log_settings()
 
     def get_settings_version(self):
         return 1
@@ -102,20 +102,24 @@ class PrintFinishedWhenPlugin(
             enabled=True,
             interval_seconds=60,
             start_delay_seconds=300,
-            message_template_under_60s="Print finished {seconds} second(s) ago",
-            message_template_under_60m="Print finished {minutes} minute(s) ago",
-            message_template_over_60m="Print finished {hours} hour(s) ago",
+            message_template_under_60s="Finished {seconds} s ago",
+            message_template_under_60m="Finished {minutes} m ago",
+            message_template_over_60m="Finished {hours} h ago",
+            message_template_over_24h="Finished {days} d ago",
         )
 
     def on_settings_save(self, data):
         SettingsPlugin.on_settings_save(self, data)
 
         self.log.section("Settings Saved")
-        self.log.info(f"Raw data: {data}")
+        self.log.info(f"Data: {data}")
+
+        for key, value in data.items():
+            self.log.kv(key, value)
 
         self._apply_settings()
 
-    def print_settings(self):
+    def log_settings(self):
         self.log.kv(
             "Enabled", self._settings.get_boolean(["enabled"]))
         self.log.kv(
@@ -150,6 +154,8 @@ class PrintFinishedWhenPlugin(
             self._timer = RepeatedTimer(interval, self._send_message, run_first=False)
             self._timer.start()
             self.log.highlight(f"Timer restarted with interval {interval}s")
+
+        self.log_settings()
 
     def on_event(self, event, payload):
         trigger_events = {
