@@ -12,6 +12,11 @@ from octoprint.events import Events
 from octoprint.util import RepeatedTimer
 
 class NullLogger:
+    """ Null logger class used before the plugin is initialised
+    Using this avoids checking that the logger has been initialised, each time
+    the logger is called, as apparently plugins can be called before
+    initialisation.
+    """
     def section(self, *_, **__): pass
     def subsection(self, *_, **__): pass
     def event(self, *_, **__): pass
@@ -257,6 +262,15 @@ class PrintFinishedWhenPlugin(
         self.log.info("State reset")
 
     def _calculate_template_data(self, seconds_elapsed):
+        """ Calculate values for substitutions, and define their keys
+
+        Any new local variables defined in this function (and associated
+        values) will be used in message string substitutions.
+
+        Defining anything new here will be propagated automatically, to be used
+        in the message formatting code, and to the settings UI. No other
+        changes are required. Pretty neat, eh.
+        """
         seconds = seconds_elapsed
         minutes, mod_s = divmod(seconds, 60)
         hours, mod_m = divmod(minutes, 60)
