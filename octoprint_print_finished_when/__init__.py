@@ -306,7 +306,10 @@ class PrintFinishedWhenPlugin(
             self.log.error(f"M117 send failed: {e}")
 
     def get_template_configs(self):
-        return [dict(type="settings", autoescape=True)]
+        return [dict(type="settings", autoescape=True, custom_bindings=False)]
+
+    def is_template_autoescaped(self):
+        return True
 
 __plugin_name__ = "Print Finished When"
 __plugin_author__ = "Ed Cragg"
