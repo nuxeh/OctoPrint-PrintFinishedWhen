@@ -37,7 +37,9 @@ def bump_version(current, part):
 def update_files(old_v, new_v):
     """Finds and replaces version strings in a list of files using regex."""
     # Matches typical patterns like version="1.2.3" or __version__ = '1.2.3'
-    pattern = re.compile(rf'((?:version|__version__)\s*=\s*["\']){re.escape(old_v)}(["\'])')
+    pattern = re.compile(
+        rf'((?:version|__version__|__plugin_version__)\s*=\s*)(["\']){re.escape(old_v)}(["\'])'
+    )
     
     for file_path in TARGET_FILES:
         if os.path.exists(file_path):
